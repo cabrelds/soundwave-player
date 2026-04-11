@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoundWave</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="app">
+   
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="hidden">
+      <div class="sb-header">
+        <div class="logo">SOUND<span>WAVE</span></div>
+        <button class="cb" onclick="hideSidebar()" style="padding:4px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+      <div class="sb-actions">
+        <button class="sb-btn primary" onclick="openFolder()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+          </svg>
+          Ouvrir dossier
+        </button>
+        <button class="sb-btn" onclick="openFiles()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          Fichiers
+        </button>
+      </div>
+      <div class="sb-count" id="sbCount"></div>
+      <div id="playlistEl"></div>
+    </div>
+
+    <div id="sideOverlay" onclick="hideSidebar()"></div>
+
+    <!-- MAIN -->
+    <div id="main">
+      <button id="sideToggle" onclick="toggleSidebar()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+        </svg>
+      </button>
+
+      <div id="mediaZone">
+        <!-- Empty -->
+        <div id="emptyState">
+          <div class="e-logo">SOUND<span>WAVE</span></div>
+          <div class="e-sub">Lecteur audio &amp; vidéo</div>
+          <div class="e-btns">
+            <button class="e-btn" onclick="openFolder()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+              </svg>
+              Ouvrir un dossier
+            </button>
+            <button class="e-btn" onclick="openFiles()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+              </svg>
+              Fichiers individuels
+            </button>
+          </div>
+        </div>
+
+        <!-- Audio -->
+        <div id="audioBg">
+          <div class="audio-title" id="audioTitle">—</div>
+          <div class="audio-sub" id="audioSub">AUDIO</div>
+        </div>
+
+        <!-- Video -->
+        <video id="vid" playsinline></video>
+
+        <!-- Visualizer -->
+        <canvas id="vizCanvas"></canvas>
+      </div>
+
+      <!-- Controls -->
+      <div id="controls">
+        <div class="prog-wrap" id="progBar" onclick="seekTo(event)">
+          <div class="prog-fill" id="progFill" style="width:0%"></div>
+        </div>
+        <div class="ctrl-row">
+          <div class="tic">
+            <div class="tic-name" id="ctrlName">—</div>
+            <div class="tic-sub" id="ctrlSub">—</div>
+          </div>
+          <div class="ctrl-center">
+            <button class="cb" onclick="prevTrack()"><svg width="22" height="22" viewBox="0 0 24 24"
+                fill="currentColor">
+                <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+              </svg></button>
+            <button class="cb play" id="playBtn" onclick="togglePlay()">
+              <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+            <button class="cb" onclick="nextTrack()"><svg width="22" height="22" viewBox="0 0 24 24"
+                fill="currentColor">
+                <path d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z" />
+              </svg></button>
+            <button class="cb" id="shuffleBtn" onclick="toggleShuffle()"><svg width="18" height="18" viewBox="0 0 24 24"
+                fill="currentColor">
+                <path
+                  d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
+              </svg></button>
+            <button class="cb" id="repeatBtn" onclick="toggleRepeat()"><svg width="18" height="18" viewBox="0 0 24 24"
+                fill="currentColor">
+                <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+              </svg></button>
+            <button class="cb" onclick="toggleSidebar()"><svg width="18" height="18" viewBox="0 0 24 24"
+                fill="currentColor">
+                <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
+              </svg></button>
+          </div>
+          <div class="ctrl-right">
+            <div class="timedsp"><span id="tCur">0:00</span> / <span id="tTot">0:00</span></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,.4)">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+            </svg>
+            <input type="range" class="vol" id="volSlider" min="0" max="1" step="0.01" value="0.8"
+              oninput="setVol(this.value)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- inputs séparés -->
+
+  <!-- ═══ SPLASH SCREEN ═══ -->
+  <div id="splashScreen">
+    <img src="./image/audio.png" alt="">
+    <div class="splash-name">SOUND<span>WAVE</span></div>
+  </div>
+
+  <!-- ═══ HOME / LIBRARY VIEW ═══ -->
+  <div id="homeView">
+    <!-- Sidebar -->
+    <div class="hv-sidebar">
+      <div class="hv-brand">
+        <img src="./image/audio.png" alt="">
+        <div class="hv-brand-name">SOUND<span>WAVE</span></div>
+      </div>
+      <nav class="hv-nav">
+        <div class="hv-nav-item active" id="navAccueil" onclick="showHomeTab('accueil')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+          </svg>
+          Accueil
+        </div>
+        <div class="hv-nav-item" id="navBiblio" onclick="showHomeTab('bibliotheque')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+          </svg>
+          Bibliothèque de musique
+        </div>
+      </nav>
+    </div>
+
+    <!-- Accueil tab -->
+    <div class="hv-main" id="tabAccueil">
+      <div class="hv-topbar">
+        <h1>Accueil</h1>
+
+      </div>
+      <div class="hv-content">
+        <div class="hv-section-title">Médias récents</div>
+        <div class="recents-grid" id="recentsGrid"></div>
+      </div>
+    </div>
+
+    <!-- Bibliotheque tab -->
+    <div class="hv-lib-main hidden" id="tabBibliotheque">
+      <div class="lib-topbar">
+        <h1>Musique</h1>
+        <button class="lib-add-btn" onclick="libAddFolder()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+          </svg>
+          Ajouter un dossier
+        </button>
+      </div>
+      <div class="lib-tabs">
+        <div class="lib-tab active" onclick="setLibTab('morceaux',this)">Morceaux</div>
+        <div class="lib-tab" onclick="setLibTab('albums',this)">Albums</div>
+        <div class="lib-tab" onclick="setLibTab('artistes',this)">Artistes</div>
+      </div>
+      <div class="lib-toolbar">
+        <button class="lib-shuffle-btn" onclick="libShuffle()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
+          </svg>
+          Lire en aléatoire
+        </button>
+        <div class="lib-filters">
+          <span class="lib-sort-label">Trier par: <span>A - Z</span></span>
+          <select class="lib-sort-sel" onchange="libSort(this.value)">
+            <option value="az">A - Z</option>
+            <option value="za">Z - A</option>
+          </select>
+          <span class="lib-genre-label">Genre: <span>Tous les genres</span></span>
+        </div>
+      </div>
+      <div class="lib-list" id="libList">
+        <div class="lib-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+          </svg>
+          Ajoutez un dossier pour commencer
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- inputs pour home -->
+  <input type="file" id="homeFileInput" multiple style="display:none" onchange="homeHandleFiles(this.files)">
+  <input type="file" id="homeFolderInput" webkitdirectory style="display:none" onchange="homeHandleFiles(this.files)">
+
+  <input type="file" id="fileInput" multiple style="display:none" onchange="handleFiles(this.files)">
+  <input type="file" id="folderInput" webkitdirectory style="display:none" onchange="handleFiles(this.files)">
+  <script src="lecteur.js"></script>
+</body>
+
+</html>
