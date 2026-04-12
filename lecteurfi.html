@@ -42,7 +42,8 @@
       <div class="sb-search-wrap">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         <input type="text" id="sbSearchInput" placeholder="Rechercher…" autocomplete="off"
-          onkeydown="if(event.key==='Enter')smartSearch(this.value)">
+          oninput="filterPlaylist(this.value)"
+          onkeydown="if(event.key==='Escape'){this.value='';filterPlaylist('')}">
       </div>
       <div id="playlistEl"></div>
     </div>
@@ -181,7 +182,8 @@
         <div class="hv-search-bar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
           <input type="text" id="searchInput" placeholder="Rechercher un titre, artiste…" autocomplete="off"
-            onkeydown="if(event.key==='Enter')smartSearch(this.value)">
+            oninput="onHomeSearchInput(this.value)"
+            onkeydown="if(event.key==='Enter')smartSearch(this.value);else if(event.key==='Escape'){this.value='';onHomeSearchInput('')}">
           <button class="search-go-btn" onclick="smartSearch(document.getElementById('searchInput').value)">Rechercher</button>
           <div id="searchOnlineBadge" class="search-badge"></div>
         </div>
