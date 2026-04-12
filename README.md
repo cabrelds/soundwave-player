@@ -22,5 +22,5 @@ Lecteur audio et vidéo moderne en HTML/CSS/JS
 2. Ouvrir `lecteurfi.html` dans un navigateur
 3. Profiter du lecteur !
 
-##  Auteur
+## Auteur
 tchamyimdorcas@icloud.com
