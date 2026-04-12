@@ -83,7 +83,7 @@ html, body {
 #sidebar.hidden { transform: translateX(-100%); position: absolute; height: 100%; }
 
 .sb-header {
-  padding: 18px 16px 12px;
+  padding: 20px 18px 18px;
   border-bottom: 1px solid var(--w4);
   display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
@@ -435,7 +435,7 @@ input[type=range].vol::-moz-range-thumb {
   z-index: 60;
 }
 .hv-brand {
-  padding: 20px 18px 16px;
+  padding: 20px 18px 18px;
   display: flex; align-items: center; gap: 10px;
   border-bottom: 1px solid rgba(255,255,255,.06);
   flex-shrink: 0;
