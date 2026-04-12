@@ -38,22 +38,7 @@ html, body {
   gap: 8px;
   pointer-events: none;
 }
-#backToHome {
-  position: absolute;
-  top: 14px;
-  left: 50px;
-  z-index: 100;
-  background: rgba(0,0,0,.6);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 8px;
-  color: rgba(255,255,255,.7);
-  padding: 7px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#backToHome:hover { color: #fff; background: rgba(255,255,255,.1); }
+
 .toast {
   background: var(--bg3);
   border: 1px solid var(--w3);
