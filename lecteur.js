@@ -34,6 +34,9 @@ function toast(msg, type = 'info') {
     setTimeout(() => t.remove(), 400);
   }, 3000);
 }
+function showHome() {
+  document.getElementById('homeView').classList.remove('hidden');
+}
 
 // ════════════════════════════════════════
 // OUVRIR FICHIERS
