@@ -900,3 +900,160 @@ function recentPlay(name) {
 
 // Rendre renderRecents disponible dès que le DOM est prêt
 document.addEventListener('DOMContentLoaded', renderRecents);
+
+// ════════════════════════════════════════
+// SMART SEARCH — Recherche intelligente
+// ════════════════════════════════════════
+
+/**
+ * Met à jour le badge en ligne/hors ligne dans la barre de recherche
+ */
+function updateSearchBadge() {
+  const badge = document.getElementById('searchOnlineBadge');
+  if (!badge) return;
+  const online = navigator.onLine;
+  badge.className   = 'search-badge ' + (online ? 'online' : 'offline');
+  badge.title       = online ? 'En ligne – recherche sur YouTube disponible' : 'Hors ligne – recherche locale uniquement';
+  badge.textContent = online ? '● En ligne' : '○ Hors ligne';
+}
+
+window.addEventListener('online',  updateSearchBadge);
+window.addEventListener('offline', updateSearchBadge);
+document.addEventListener('DOMContentLoaded', updateSearchBadge);
+
+/**
+ * Point d'entrée principal de la recherche
+ */
+function smartSearch(query) {
+  query = (query || '').trim();
+  if (!query) { toast('Entrez un terme de recherche.', 'info'); return; }
+
+  const online     = navigator.onLine;
+  const localHits  = searchLocalTracks(query);
+
+  // Afficher le panel
+  openSearchPanel(query, online, localHits);
+}
+
+/**
+ * Cherche dans la bibliothèque et les pistes chargées
+ */
+function searchLocalTracks(query) {
+  const q = query.toLowerCase();
+  const seen = new Set();
+  const results = [];
+
+  // Bibliothèque (libTracks)
+  libTracks.forEach((f, i) => {
+    const name = f.name.replace(/\.[^.]+$/, '');
+    if (name.toLowerCase().includes(q) && !seen.has(name)) {
+      seen.add(name);
+      results.push({ name, isVid: VIDEO_EXT.test(f.name), source: 'lib', idx: i });
+    }
+  });
+
+  // Pistes du player déjà chargées
+  tracks.forEach((t, i) => {
+    if (t.name.toLowerCase().includes(q) && !seen.has(t.name)) {
+      seen.add(t.name);
+      results.push({ name: t.name, isVid: t.isVid, source: 'player', idx: i });
+    }
+  });
+
+  return results;
+}
+
+/**
+ * Ouvre et remplit le panneau de résultats
+ */
+function openSearchPanel(query, online, localHits) {
+  const panel = document.getElementById('searchPanel');
+  const ovl   = document.getElementById('searchOverlay');
+
+  // Status
+  const statusEl = document.getElementById('spStatus');
+  statusEl.className = 'sp-status ' + (online ? 'online' : 'offline');
+  statusEl.textContent = online ? '● En ligne' : '○ Hors ligne';
+
+  // Titre
+  document.getElementById('spQuery').textContent = '« ' + query + ' »';
+
+  // Actions en ligne
+  const actionsEl = document.getElementById('spOnlineActions');
+  if (online) {
+    const ytUrl    = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query);
+    const spotUrl  = 'https://open.spotify.com/search/' + encodeURIComponent(query);
+    const scUrl    = 'https://soundcloud.com/search?q=' + encodeURIComponent(query);
+    actionsEl.innerHTML =
+      '<div class="sp-online-title">🌐 Rechercher en ligne :</div>' +
+      '<div class="sp-online-btns">' +
+        '<a class="sp-online-btn yt"  href="' + ytUrl   + '" target="_blank" rel="noopener">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.58 7.19c-.23-.86-.91-1.54-1.78-1.77C18.25 5 12 5 12 5s-6.25 0-7.8.42c-.87.23-1.55.91-1.78 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81c.23.86.91 1.54 1.78 1.77C5.75 19 12 19 12 19s6.25 0 7.8-.42c.87-.23 1.55-.91 1.78-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3-5.2 3z"/></svg>' +
+          'YouTube' +
+        '</a>' +
+        '<a class="sp-online-btn sp" href="' + spotUrl  + '" target="_blank" rel="noopener">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.65 14.42a.625.625 0 0 1-.86.21c-2.35-1.44-5.31-1.76-8.8-.97a.625.625 0 0 1-.28-1.22c3.82-.87 7.1-.5 9.74 1.12.3.18.39.57.2.86zm1.24-2.76a.782.782 0 0 1-1.07.26c-2.69-1.65-6.79-2.13-9.97-1.17a.782.782 0 0 1-.45-1.5c3.64-1.1 8.17-.57 11.23 1.33.37.23.49.71.26 1.08zm.11-2.87C14.6 8.9 9.4 8.73 6.32 9.67a.937.937 0 1 1-.54-1.8c3.56-1.08 9.47-.87 13.2 1.35a.937.937 0 0 1-.98 1.57z"/></svg>' +
+          'Spotify' +
+        '</a>' +
+        '<a class="sp-online-btn sc" href="' + scUrl    + '" target="_blank" rel="noopener">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.56 8.87V17h8.76c.87-.01 1.67-.54 1.67-1.57 0-.87-.68-1.56-1.55-1.62.07-.23.11-.47.11-.72 0-1.56-1.27-2.83-2.84-2.83-.23 0-.45.03-.66.08A3.17 3.17 0 0 0 14 8.87c-.01-1.75-1.42-3.17-3.17-3.17S7.67 7.12 7.67 8.87c0 .06 0 .12.01.18H9.2c0-.06-.01-.12-.01-.18 0-.97.79-1.75 1.75-1.75s1.75.78 1.75 1.75h-1.13zm-7.69 5.84c.08.7.66 1.24 1.38 1.24.72 0 1.3-.54 1.38-1.24H3.87zm0-1.96H6.5A1.39 1.39 0 0 0 5.12 11.5c-.76 0-1.38.6-1.38 1.35 0 .33.12.62.32.85H3.87v.05z"/></svg>' +
+          'SoundCloud' +
+        '</a>' +
+      '</div>';
+    actionsEl.style.display = 'block';
+  } else {
+    actionsEl.innerHTML = '<div class="sp-offline-note">📵 Hors ligne — seule la bibliothèque locale est disponible.</div>';
+    actionsEl.style.display = 'block';
+  }
+
+  // Résultats locaux
+  const resultsEl = document.getElementById('spResults');
+  if (localHits.length) {
+    resultsEl.innerHTML =
+      '<div class="sp-local-title">📁 Dans votre bibliothèque (' + localHits.length + ') :</div>' +
+      '<div class="sp-local-list">' +
+      localHits.map(hit =>
+        '<div class="sp-local-item" onclick="searchPlayHit(\'' + hit.source + '\',' + hit.idx + ')">' +
+          '<div class="sp-li-icon">' + (hit.isVid ? '🎬' : '🎵') + '</div>' +
+          '<div class="sp-li-name">' + esc(hit.name) + '</div>' +
+          '<div class="sp-li-play">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' +
+          '</div>' +
+        '</div>'
+      ).join('') +
+      '</div>';
+  } else {
+    resultsEl.innerHTML =
+      '<div class="sp-no-local">' +
+        '<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>' +
+        'Aucun fichier local correspondant.' +
+      '</div>';
+  }
+
+  // Afficher
+  panel.classList.remove('hidden');
+  ovl.classList.add('show');
+
+  if (!online) toast('Hors ligne — recherche locale uniquement.', 'info');
+}
+
+/**
+ * Joue un résultat local depuis le panel de recherche
+ */
+function searchPlayHit(source, idx) {
+  closeSearch();
+  if (source === 'lib') {
+    libPlayTrack(idx);
+  } else {
+    document.getElementById('homeView').classList.add('hidden');
+    loadTrack(idx);
+  }
+}
+
+/**
+ * Ferme le panneau de recherche
+ */
+function closeSearch() {
+  document.getElementById('searchPanel').classList.add('hidden');
+  document.getElementById('searchOverlay').classList.remove('show');
+}
