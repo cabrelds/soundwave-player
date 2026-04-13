@@ -36,7 +36,6 @@
   --dim:      #6a6a6a;
   --hi:       #282828;
 
-  /* Gradients */
   --grad-green:  linear-gradient(135deg, #1db954 0%, #17a349 100%);
   --grad-dark:   linear-gradient(180deg, rgba(0,0,0,.6) 0%, transparent 100%);
 
