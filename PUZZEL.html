@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Jeu Puzzle</title>
+
+<style>
+    body {
+        font-family: Arial;
+        text-align: center;
+        background-color: #f0f0f0;
+    }
+
+    h1 {
+        margin-top: 20px;
+    }
+
+    #puzzle {
+        width: 300px;
+        height: 300px;
+        margin: 20px auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+    }
+
+    .case {
+        background-color: #db34c5;
+        color: white;
+        font-size: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .vide {
+        background-color: rgb(172, 146, 146);
+        cursor: default;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🧩  Puzzle de Ange</h1>
+
+<div id="puzzle"></div>
+
+<button onclick="melanger()">Mélanger</button>
+
+<script>
+let tableau = [1,2,3,4,5,6,7,8,""];
+
+function afficher() {
+    let puzzle = document.getElementById("puzzle");
+    puzzle.innerHTML = "";
+
+    tableau.forEach((valeur, index) => {
+        let div = document.createElement("div");
+        div.className = "case";
+
+        if (valeur === "") {
+            div.classList.add("vide");
+        } else {
+            div.textContent = valeur;
+            div.onclick = () => bouger(index);
+        }
+
+        puzzle.appendChild(div);
+    });
+}
+
+function bouger(index) {
+    let videIndex = tableau.indexOf("");
+
+    let voisins = [
+        index - 1,
+        index + 1,
+        index - 3,
+        index + 3
+    ];
+
+    if (voisins.includes(videIndex)) {
+        [tableau[index], tableau[videIndex]] = [tableau[videIndex], tableau[index]];
+        afficher();
+        verifier();
+    }
+}
+
+function melanger() {
+    tableau.sort(() => Math.random() - 0.5);
+    afficher();
+}
+
+function verifier() {
+    let gagne = JSON.stringify(tableau) === JSON.stringify([1,2,3,4,5,6,7,8,""]);
+    if (gagne) {
+        alert("🎉 Bravo ! Tu as gagné !");
+    }
+}
+
+afficher();
+</script>
+
+</body>
+</html>
