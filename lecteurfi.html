@@ -5,8 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SoundWave</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="soundwave.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 </head>
+</head>
+
+<div class="sb-search">
+  <input type="text" id="searchInput" placeholder="Rechercher dans la playlist..." onkeyup="searchPlaylist()">
+</div>
 
 <body>
   <div id="app">
@@ -14,7 +20,11 @@
     <!-- SIDEBAR -->
     <div id="sidebar" class="hidden">
       <div class="sb-header">
-        <div class="logo">SOUND<span>WAVE</span></div>
+        <div class="sb-search">
+          <input type="text" id="searchInput" placeholder="Rechercher..." onkeyup="searchPlaylist()">
+        </div>
+
+       <div class="logo">SOUND<span>WAVE</span></div>
         <button class="cb" onclick="hideSidebar()" style="padding:4px">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path
@@ -229,7 +239,7 @@
 
   <input type="file" id="fileInput" multiple style="display:none" onchange="handleFiles(this.files)">
   <input type="file" id="folderInput" webkitdirectory style="display:none" onchange="handleFiles(this.files)">
-  <script src="lecteur.js"></script>
+  <script src="soundwave.js"></script>
 </body>
 
 </html>
